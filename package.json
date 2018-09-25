@@ -31,17 +31,17 @@
   },
   "homepage": "https://github.com/zigbeer/zigbee-shepherd#readme",
   "dependencies": {
-    "areq": "https://github.com/HalleyAssist/areq.git",
+    "areq": "git+https://github.com/HalleyAssist/areq.git",
     "busyman": "^0.3.0",
-    "cc-znp": "https://github.com/HalleyAssist/cc-znp.git",
+    "cc-znp": "git+https://github.com/HalleyAssist/cc-znp.git",
     "debug": "2.x",
     "objectbox": "^0.3.0",
     "proving": "^0.1.0",
     "q": "1.x",
-    "zcl-id": "https://github.com/HalleyAssist/zcl-id.git",
-    "zcl-packet": "https://github.com/HalleyAssist/zcl-packet.git",
-    "ziee": "^0.3.0",
-    "zive": "^0.2.2",
+    "zcl-id": "git+https://github.com/HalleyAssist/zcl-id.git",
+    "zcl-packet": "git+https://github.com/HalleyAssist/zcl-packet.git",
+    "ziee": "git+https://github.com/HalleyAssist/ziee.git",
+    "zive": "git+https://github.com/HalleyAssist/zive.git",
     "zstack-constants": "^0.2.0"
   },
   "devDependencies": {
