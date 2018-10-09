@@ -828,48 +828,4 @@ describe('Functional Check', function () {
             });
         });
     });
-
-    describe('#.endDeviceAnnceHdlr', function () {
-        it('unbind loEp1 and rmEp1', function (done) {
-            var simpleDescReqStub = sinon.stub(controller, 'simpleDescReq').callsFake(function (nwkAddr, ieeeAddr, callback) {
-                var deferred = Q.defer();
-
-                setImmediate(function () {
-                    deferred.resolve({
-                        type: 1,
-                        nwkaddr: nwkAddr,
-                        ieeeaddr: ieeeAddr,
-                        manufId: 10,
-                        epList: [],
-                        endpoints: []
-                    });
-                });
-
-                return deferred.promise.nodeify(callback);
-            }),
-            dev_1,
-            dev_2;
-
-            controller.on('ZDO:devIncoming', function (devInfo) {
-                controller.emit('ind:incoming' + ':' + devInfo.ieeeaddr);
-
-                if (devInfo.ieeeaddr === '0x123456789abcdef')
-                    dev_1 = true;
-                else if (devInfo.ieeeaddr === '0x00124b000159168')
-                    dev_2 = true;
-
-                if (dev_1 && dev_2)
-                    done();
-            });
-
-            controller.emit('ZDO:endDeviceAnnceInd', {
-                nwkaddr: 100,
-                ieeeaddr: '0x123456789abcdef'
-            });
-            controller.emit('ZDO:endDeviceAnnceInd', {
-                nwkaddr: 200,
-                ieeeaddr: '0x00124b000159168'
-            });
-        });
-    });
 });

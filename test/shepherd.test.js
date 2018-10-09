@@ -210,6 +210,49 @@ describe('Top Level of Tests', function () {
                 return deferred.promise.nodeify(callback);
             };
         });
+        
+
+        describe('#.endDeviceAnnceHdlr', function () {
+            it('unbind loEp1 and rmEp1', sinon.test(function (done) {
+                var simpleDescReqStub = sinon.stub(shepherd.controller, 'simpleDescReq').callsFake(function (nwkAddr, ieeeAddr, callback) {
+                    var deferred = Q.defer();
+
+                    setImmediate(function () {
+                        deferred.resolve({
+                            type: 1,
+                            nwkaddr: nwkAddr,
+                            ieeeaddr: ieeeAddr,
+                            manufId: 10,
+                            epList: [],
+                            endpoints: []
+                        });
+                    });
+
+                    return deferred.promise.nodeify(callback);
+                }),
+                dev_1,
+                dev_2;
+
+                shepherd.on('ind:incoming', function (dev) {
+                    if (dev.ieeeAddr === '0x123456789abcdef')
+                        dev_1 = true;
+                    else if (dev.ieeeAddr === '0x00124b000159168')
+                        dev_2 = true;
+
+                    if (dev_1 && dev_2)
+                        done();
+                });
+
+                shepherd.controller.emit('ZDO:endDeviceAnnceInd', {
+                    nwkaddr: 100,
+                    ieeeaddr: '0x123456789abcdef'
+                });
+                shepherd.controller.emit('ZDO:endDeviceAnnceInd', {
+                    nwkaddr: 200,
+                    ieeeaddr: '0x00124b000159168'
+                });
+            }));
+        });
 
         describe('#.permitJoin', function () {
             it('should not throw if shepherd is not enabled when permitJoin invoked - shepherd is disabled.', sinon.test(function (done) {
