@@ -505,11 +505,11 @@ describe('Top Level of Tests', function () {
                 }, 20)
             }));
         });
-/*
+
         describe('#.stop', function () {
             it('should stop ok, _enabled should be false', function (done) {
                 var stopCalled = false,
-                    closeStub = sinon.stub(shepherd.controller, 'close', function (callback) {
+                    closeStub = sinon.stub(shepherd.controller, 'close').callsFake(function (callback) {
                         var deferred = Q.defer();
 
                         deferred.resolve();
@@ -529,6 +529,6 @@ describe('Top Level of Tests', function () {
                     }
                 });
             });
-        });*/
+        });
     });
 });
