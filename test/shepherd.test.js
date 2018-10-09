@@ -466,7 +466,7 @@ describe('Top Level of Tests', function () {
                         if(!shepherd._enabled){
                             done();
                         }else{
-                            done(new Error("shepherd._enabled should be false"))
+                            done("shepherd._enabled should be false")
                         }
                     }
                 });
