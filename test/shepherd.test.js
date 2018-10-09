@@ -414,11 +414,10 @@ describe('Top Level of Tests', function () {
 
         describe('#.reset', function () {
             this.timeout(2000);
-            it('should reset - soft', sinon.test(function (done) {
+            it('should reset - soft', sinon.test(function (done) {                
                 var stopStub = this.stub(shepherd, 'stop').callsFake(function (callback) {
                     var deferred = Q.defer();
                     deferred.resolve();
-                    shepherd.controller.emit('SYS:resetInd', {});
                     return deferred.promise.nodeify(callback);
                 }),
                 startStub = this.stub(shepherd, 'start').callsFake(function (callback) {
@@ -432,13 +431,17 @@ describe('Top Level of Tests', function () {
 
 
                 shepherd.reset('soft').done();
+
+                //Fake module response
+                setTimeout(function(){                
+                    shepherd.controller.emit('SYS:resetInd')
+                }, 20)
             }));
 
             it('should reset - hard', sinon.test(function (done) {
                 var stopStub = this.stub(shepherd, 'stop').callsFake(function (callback) {
                         var deferred = Q.defer();
                         deferred.resolve();
-                        shepherd.controller.emit('SYS:resetInd', {});
                         return deferred.promise.nodeify(callback);
                     }),
                     startStub = this.stub(shepherd, 'start').callsFake(function (callback) {
@@ -452,6 +455,11 @@ describe('Top Level of Tests', function () {
 
 
                 shepherd.reset('hard').done();
+
+                //Fake module response
+                setTimeout(function(){                
+                    shepherd.controller.emit('SYS:resetInd')
+                }, 20)
             }));
         });
 /*
