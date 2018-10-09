@@ -198,7 +198,7 @@ describe('Top Level of Tests', function () {
 
     describe('Functional Check', function () {
         var shepherd;
-        beforeEach(function () {
+        before(function () {
             shepherd = new Shepherd('/dev/ttyUSB0', { dbPath: __dirname + '/database/dev1.db' });
 
             shepherd.controller.request = function (subsys, cmdId, valObj, callback) {
