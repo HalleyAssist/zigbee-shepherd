@@ -120,7 +120,7 @@ describe('Top Level of Tests', function () {
             expect(function () { return new Shepherd('xxx', 1); }).to.throw(TypeError);
             expect(function () { return new Shepherd('xxx', true); }).to.throw(TypeError);
 
-            expect(function () { return new Shepherd('xxx', {}); }).not.to.throw(Error);
+            expect(function () { return new Shepherd('xxx', {dbPath: "/tmp/1.db"}); }).not.to.throw(Error);
         });
     });
 
@@ -195,10 +195,10 @@ describe('Top Level of Tests', function () {
         });
     });
 
-    describe('Functional Check', function () {
+    describe('Join Check', function () {
         var shepherd;
         before(function () {
-            shepherd = new Shepherd('/dev/ttyUSB0', { dbPath: __dirname + '/database/dev1.db' });
+            shepherd = new Shepherd('/dev/ttyUSB0', { dbPath: __dirname + '/database/dev4.db' });
 
             shepherd.controller.request = function (subsys, cmdId, valObj, callback) {
                 var deferred = Q.defer();
@@ -210,7 +210,6 @@ describe('Top Level of Tests', function () {
                 return deferred.promise.nodeify(callback);
             };
         });
-        
 
         describe('#.endDeviceAnnceHdlr', function () {
             it('unbind loEp1 and rmEp1', sinon.test(function (done) {
@@ -253,6 +252,25 @@ describe('Top Level of Tests', function () {
                 });
             }));
         });
+    })
+
+    describe('Functional Check', function () {
+        var shepherd;
+        before(function () {
+            shepherd = new Shepherd('/dev/ttyUSB0', { dbPath: __dirname + '/database/dev1.db' });
+
+            shepherd.controller.request = function (subsys, cmdId, valObj, callback) {
+                var deferred = Q.defer();
+
+                process.nextTick(function () {
+                    deferred.resolve({ status: 0 });
+                });
+
+                return deferred.promise.nodeify(callback);
+            };
+        });
+        
+
 
         describe('#.permitJoin', function () {
             it('should not throw if shepherd is not enabled when permitJoin invoked - shepherd is disabled.', sinon.test(function (done) {
