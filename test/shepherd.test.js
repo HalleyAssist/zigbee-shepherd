@@ -8,7 +8,7 @@ var Q = require('q'),
     sinonChai = require('sinon-chai'),
     expect = chai.expect;
 
-sinon.test = require('sinon-test')(sinon)
+sinon.test = require('sinon-test')(sinon, {useFakeTimers: false})
 
 var Shepherd = require('../index.js'),
     Coord  = require('../lib/model/coord'),
@@ -244,18 +244,17 @@ describe('Top Level of Tests', function () {
 
                         setTimeout(function(){
                             shepherd.emit('_ready', true);
-                        }, 20)                    
+                        }, 20)
 
                         return deferred.promise.nodeify(callback);
                     });
 
                 function d(){
                     if(shepherd._enabled) done()
-                    done("shepherd._enabled should be true")
+                    else done("shepherd._enabled should be true")
                 }
 
                 shepherd.once('_ready', function () {
-                    console.log("_ready")
                     _readyCbCalled = true;
                     if (_readyCbCalled && readyCbCalled && startCbCalled)
                         setTimeout(function () {
@@ -264,7 +263,6 @@ describe('Top Level of Tests', function () {
                 });
 
                 shepherd.once('ready', function () {
-                    console.log("ready")
                     readyCbCalled = true;
                     if (_readyCbCalled && readyCbCalled && startCbCalled)
                         setTimeout(function () {
@@ -273,7 +271,6 @@ describe('Top Level of Tests', function () {
                 });
 
                 shepherd.start(function (err) {
-                    console.log("start: %s", err)
                     if(err){
                         done(err)
                         return
