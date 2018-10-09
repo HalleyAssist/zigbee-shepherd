@@ -747,7 +747,7 @@ describe('Module Methods Check', function() {
                     return deferred.promise.nodeify(callback);
             });
 
-            af.send(rmEp1, rmEp1, 3, new Buffer([ 1, 2 ]), { timeout: 3000 }, function (err, rsp) {
+            af.send(rmEp1, rmEp1, 3, new Buffer([ 1, 2 ]), { timeout: 300 }, function (err, rsp) {
                 if (err) {
                     done();
                 }
@@ -766,7 +766,7 @@ describe('Module Methods Check', function() {
                     return deferred.promise.nodeify(callback);
             });
 
-            af.send(rmEp1, rmEp1, 3, new Buffer([ 1, 2 ]), { timeout: 3000 }, function (err, rsp) {
+            af.send(rmEp1, rmEp1, 3, new Buffer([ 1, 2 ]), { timeout: 300 }, function (err, rsp) {
                 if (err) {
                     done();
                 }
@@ -910,7 +910,7 @@ describe('Module Methods Check', function() {
                     return deferred.promise.nodeify(callback);
             });
 
-            af.send(loEp8, rmEp1, 3, new Buffer([ 1, 2 ]), { timeout: 3000 }, function (err, rsp) {
+            af.send(loEp8, rmEp1, 3, new Buffer([ 1, 2 ]), { timeout: 300 }, function (err, rsp) {
                 if (err) {
                     done();
                 }
@@ -929,7 +929,7 @@ describe('Module Methods Check', function() {
                     return deferred.promise.nodeify(callback);
             });
 
-            af.send(loEp8, rmEp1, 3, new Buffer([ 1, 2 ]), { timeout: 3000 }, function (err, rsp) {
+            af.send(loEp8, rmEp1, 3, new Buffer([ 1, 2 ]), { timeout: 300 }, function (err, rsp) {
                 if (err) {
                     done();
                 }
@@ -1055,7 +1055,7 @@ describe('Module Methods Check', function() {
                     return deferred.promise.nodeify(callback);
             });
 
-            af.sendExt(loEp8, 2, 3, 12, new Buffer([ 1, 2 ]), { timeout: 3000 }, function (err, rsp) {
+            af.sendExt(loEp8, 2, 3, 12, new Buffer([ 1, 2 ]), { timeout: 300 }, function (err, rsp) {
                 if (err)
                     done();
             });
@@ -1073,7 +1073,7 @@ describe('Module Methods Check', function() {
                     return deferred.promise.nodeify(callback);
             });
 
-            af.sendExt(loEp8, 2, 3, 12, new Buffer([ 1, 2 ]), { timeout: 3000 }, function (err, rsp) {
+            af.sendExt(loEp8, 2, 3, 12, new Buffer([ 1, 2 ]), { timeout: 300 }, function (err, rsp) {
                 if (err)
                     done();
             });
@@ -1091,7 +1091,7 @@ describe('Module Methods Check', function() {
                     return deferred.promise.nodeify(callback);
             });
 
-            af.sendExt(loEp8, 2, 3, 12, new Buffer([ 1, 2 ]), { timeout: 3000 }, function (err, rsp) {
+            af.sendExt(loEp8, 2, 3, 12, new Buffer([ 1, 2 ]), { timeout: 300 }, function (err, rsp) {
                 if (err)
                     done();
             });
@@ -1527,7 +1527,7 @@ describe('Module Methods Check', function() {
                 rmEp1GetInClusterListStub = sinon.stub(rmEp1, 'getInClusterList').returns([ 1, 2, 3 ]),
                 rmEp1GetOutClusterListStub = sinon.stub(rmEp1, 'getOutClusterList').returns([ 1, 3, 4, 5 ]);
 
-            var requestStub = sinon.stub(af, 'zclClusterAttrsReq', function (dstEp, cId, callback) {
+            var requestStub = sinon.stub(af, 'zclClusterAttrsReq', function (dstEp, cId, interestedValue, callback) {
                     var deferred = Q.defer();
                     setTimeout(function () {
                         deferred.resolve({
