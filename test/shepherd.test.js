@@ -8,6 +8,8 @@ var Q = require('q'),
     sinonChai = require('sinon-chai'),
     expect = chai.expect;
 
+sinon.test = require('sinon-test')(sinon)
+
 var Shepherd = require('../index.js'),
     Coord  = require('../lib/model/coord'),
     Device  = require('../lib/model/device'),
@@ -34,12 +36,14 @@ var dev1 = new Device({
 
 var zApp = new Zive({ profId: 0x0104, devId: 6 }, new Ziee());
 
-describe('Top Level of Tests', function () {
+describe('Top Level of Tests', function () {  
+    var shepherd;
+
     before(function (done) {
         var unlink1 = false,
             unlink2 = false;
 
-        fs.stat('./test/database/dev.db', function (err, stats) {
+        fs.stat('./test/database/dev3.db', function (err, stats) {
             if (err) {
                 fs.stat('./test/database', function (err, stats) {
                     if (err) {
@@ -55,7 +59,7 @@ describe('Top Level of Tests', function () {
                     }
                 });
             } else if (stats.isFile()) {
-                fs.unlink(path.resolve('./test/database/dev.db'), function () {
+                fs.unlink(path.resolve('./test/database/dev3.db'), function () {
                     unlink1 = true;
                     if (unlink1 && unlink2)
                         done();
@@ -86,21 +90,18 @@ describe('Top Level of Tests', function () {
                 });
             }
         });
+        
+        shepherd = new Shepherd('/dev/ttyUSB0', { dbPath: __dirname + '/database/dev3.db' });
     });
 
     describe('Constructor Check', function () {
-        var shepherd;
-        before(function () {
-            shepherd = new Shepherd('/dev/ttyUSB0', { dbPath: __dirname + '/database/dev.db' });
-        });
-
         it('should has all correct members after new', function () {
             expect(shepherd._startTime).to.be.equal(0);
             expect(shepherd._enabled).to.be.false;
             expect(shepherd._zApp).to.be.an('array');
             expect(shepherd.controller).to.be.an('object');
             expect(shepherd.af).to.be.null;
-            expect(shepherd._dbPath).to.be.equal(__dirname + '/database/dev.db');
+            expect(shepherd._dbPath).to.be.equal(__dirname + '/database/dev3.db');
             expect(shepherd._devbox).to.be.an('object');
         });
 
@@ -124,9 +125,7 @@ describe('Top Level of Tests', function () {
     });
 
     describe('Signature Check', function () {
-        var shepherd;
         before(function () {
-            shepherd = new Shepherd('/dev/ttyUSB0', { dbPath: __dirname + '/database/dev.db' });
             shepherd._enabled = true;
         });
 
@@ -213,14 +212,14 @@ describe('Top Level of Tests', function () {
         });
 
         describe('#.permitJoin', function () {
-            it('should not throw if shepherd is not enabled when permitJoin invoked - shepherd is disabled.', function (done) {
+            it('should not throw if shepherd is not enabled when permitJoin invoked - shepherd is disabled.', sinon.test(function (done) {
                 shepherd.permitJoin(3).fail(function (err) {
                     if (err.message === 'Shepherd is not enabled.')
                         done();
                 }).done();
-            });
+            }));
 
-            it('should trigger permitJoin counter and event when permitJoin invoked - shepherd is enabled.', function (done) {
+            it('should trigger permitJoin counter and event when permitJoin invoked - shepherd is enabled.', sinon.test(function (done) {
                 shepherd._enabled = true;
                 shepherd.once('permitJoining', function (joinTime) {
                     shepherd._enabled = false;
@@ -228,62 +227,69 @@ describe('Top Level of Tests', function () {
                         done();
                 });
                 shepherd.permitJoin(3);
-            });
+            }));
         });
 
         describe('#.start', function () {
-            this.timeout(6000);
-
-            it('should start ok, _ready and ready should be fired, _enabled,', function (done) {
+            it('should start ok, _enabled true, _ready and ready should be fired', sinon.test(function (done) {
                 var _readyCbCalled = false,
                     readyCbCalled = false,
                     startCbCalled = false,
-                    startStub = sinon.stub(shepherd, 'start', function (callback) {
+                    startStub = this.stub(shepherd, 'start').callsFake(function (callback) {
                         var deferred = Q.defer();
 
                         shepherd._enabled = true;
                         shepherd.controller._coord = coordinator;
                         deferred.resolve();
 
-                        setTimeout(function () {
-                            shepherd.emit('_ready');
-                        }, 50);
+                        setTimeout(function(){
+                            shepherd.emit('_ready', true);
+                        }, 20)                    
 
                         return deferred.promise.nodeify(callback);
                     });
 
+                function d(){
+                    if(shepherd._enabled) done()
+                    done("shepherd._enabled should be true")
+                }
+
                 shepherd.once('_ready', function () {
+                    console.log("_ready")
                     _readyCbCalled = true;
-                    if (_readyCbCalled && readyCbCalled && startCbCalled && shepherd._enabled)
+                    if (_readyCbCalled && readyCbCalled && startCbCalled)
                         setTimeout(function () {
-                            startStub.restore();
-                            done();
+                            d();
                         }, 200);
                 });
 
                 shepherd.once('ready', function () {
+                    console.log("ready")
                     readyCbCalled = true;
-                    if (_readyCbCalled && readyCbCalled && startCbCalled && shepherd._enabled)
+                    if (_readyCbCalled && readyCbCalled && startCbCalled)
                         setTimeout(function () {
-                            startStub.restore();
-                            done();
+                            d();
                         }, 200);
                 });
 
                 shepherd.start(function (err) {
+                    console.log("start: %s", err)
+                    if(err){
+                        done(err)
+                        return
+                    }
                     startCbCalled = true;
-                    if (_readyCbCalled && readyCbCalled && startCbCalled && shepherd._enabled)
+                    if (_readyCbCalled && readyCbCalled && startCbCalled)
                         setTimeout(function () {
-                            startStub.restore();
-                            done();
+                            d();
                         }, 200);
                 });
-            });
+            }));
         });
 
         describe('#.info', function () {
-            it('should get correct info about the shepherd', function () {
-                var getNwkInfoStub = sinon.stub(shepherd.controller, 'getNetInfo').returns({
+            it('should get correct info about the shepherd', sinon.test(function () {
+                var getNwkInfoStub = this.stub(shepherd.controller, 'getNetInfo').returns({
                         state: 'Coordinator',
                         channel: 11,
                         panId: '0x7c71',
@@ -298,15 +304,15 @@ describe('Top Level of Tests', function () {
                 expect(shpInfo.net).to.be.deep.equal({ state: 'Coordinator', channel: 11, panId: '0x7c71', extPanId: '0xdddddddddddddddd', ieeeAddr: '0x00124b0001709887', nwkAddr: 0 });
                 expect(shpInfo.joinTimeLeft).to.be.equal(49);
                 getNwkInfoStub.restore();
-            });
+            }));
         });
 
         describe('#.mount', function () {
-            it('should mount zApp', function (done) {
-                var coordStub = sinon.stub(shepherd.controller.querie, 'coordInfo', function (callback) {
+            it('should mount zApp', sinon.test(function (done) {
+                var coordStub = sinon.stub(shepherd.controller.querie, 'coordInfo').callsFake(function (callback) {
                         return Q({}).nodeify(callback);
                     }),
-                    syncStub = sinon.stub(shepherd._devbox, 'sync', function (id, callback) {
+                    syncStub = sinon.stub(shepherd._devbox, 'sync').callsFake(function (id, callback) {
                         return Q({}).nodeify(callback);
                     });
 
@@ -317,13 +323,13 @@ describe('Top Level of Tests', function () {
                         done();
                     }
                 });
-            });
+            }));
         });
 
         describe('#.list', function () {
             this.timeout(5000);
 
-            it('should list one devices', function (done) {
+            it('should list one devices', sinon.test(function (done) {
                 shepherd._registerDev(dev1).then(function () {
                     var devList = shepherd.list();
                     expect(devList.length).to.be.equal(1);
@@ -337,18 +343,18 @@ describe('Top Level of Tests', function () {
                 }).fail(function (err) {
                     done(err)
                 }).done();
-            });
+            }));
         });
 
         describe('#.find', function () {
-            it('should find nothing', function () {
+            it('should find nothing', sinon.test(function () {
                 expect(shepherd.find('nothing', 1)).to.be.undefined;
-            });
+            }));
         });
 
         describe('#.lqi', function () {
-            it('should get lqi of the device', function (done) {
-                var requestStub = sinon.stub(shepherd.controller, 'request', function (subsys, cmdId, valObj, callback) {
+            it('should get lqi of the device', sinon.test(function (done) {
+                var requestStub = sinon.stub(shepherd.controller, 'request').callsFake(function (subsys, cmdId, valObj, callback) {
                     var deferred = Q.defer();
 
                     process.nextTick(function () {
@@ -385,12 +391,12 @@ describe('Top Level of Tests', function () {
                         done();
                     }
                 });
-            });
+            }));
         });
 
         describe('#.remove', function () {
-            it('should remove the device', function (done) {
-                var requestStub = sinon.stub(shepherd.controller, 'request', function (subsys, cmdId, valObj, callback) {
+            it('should remove the device', sinon.test(function (done) {
+                var requestStub = sinon.stub(shepherd.controller, 'request').callsFake(function (subsys, cmdId, valObj, callback) {
                     var deferred = Q.defer();
 
                     process.nextTick(function () {
@@ -406,49 +412,52 @@ describe('Top Level of Tests', function () {
                         done();
                     }
                 });
-            });
+            }));
         });
 
         describe('#.reset', function () {
-            this.timeout(20000);
-            it('should reset - soft', function (done) {
-                var stopStub = sinon.stub(shepherd, 'stop', function (callback) {
+            this.timeout(2000);
+            it('should reset - soft', sinon.test(function (done) {
+                var stopStub = this.stub(shepherd, 'stop').callsFake(function (callback) {
                     var deferred = Q.defer();
                     deferred.resolve();
                     shepherd.controller.emit('SYS:resetInd', {});
                     return deferred.promise.nodeify(callback);
                 }),
-                startStub = sinon.stub(shepherd, 'start', function (callback) {
+                startStub = this.stub(shepherd, 'start').callsFake(function (callback) {
                     var deferred = Q.defer();
                     deferred.resolve();
                     stopStub.restore();
+                    startStub.restore();
                     done()
                     return deferred.promise.nodeify(callback);
                 });
 
 
                 shepherd.reset('soft').done();
-            });
+            }));
 
-            it('should reset - hard', function (done) {
-                var stopStub = sinon.stub(shepherd, 'stop', function (callback) {
+            it('should reset - hard', sinon.test(function (done) {
+                var stopStub = this.stub(shepherd, 'stop').callsFake(function (callback) {
                         var deferred = Q.defer();
                         deferred.resolve();
                         shepherd.controller.emit('SYS:resetInd', {});
                         return deferred.promise.nodeify(callback);
                     }),
-                    startStub = sinon.stub(shepherd, 'start', function (callback) {
+                    startStub = this.stub(shepherd, 'start').callsFake(function (callback) {
                         var deferred = Q.defer();
                         deferred.resolve();
+                        stopStub.restore();
+                        startStub.restore();
                         done()
                         return deferred.promise.nodeify(callback);
                     });
 
 
                 shepherd.reset('hard').done();
-            });
+            }));
         });
-
+/*
         describe('#.stop', function () {
             it('should stop ok, _enabled should be false', function (done) {
                 var stopCalled = false,
@@ -472,6 +481,6 @@ describe('Top Level of Tests', function () {
                     }
                 });
             });
-        });
+        });*/
     });
 });
