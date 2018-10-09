@@ -450,8 +450,7 @@ describe('Top Level of Tests', function () {
 
         describe('#.stop', function () {
             it('should stop ok, _enabled should be false', function (done) {
-                var joinFired = false,
-                    stopCalled = false,
+                var stopCalled = false,
                     closeStub = sinon.stub(shepherd.controller, 'close', function (callback) {
                         var deferred = Q.defer();
 
@@ -462,9 +461,13 @@ describe('Top Level of Tests', function () {
 
                 shepherd.stop(function (err) {
                     stopCalled = true;
-                    if (!err && !shepherd._enabled && stopCalled && joinFired) {
+                    if (!err) {
                         closeStub.restore();
-                        done();
+                        if(!shepherd._enabled){
+                            done();
+                        }else{
+                            done(new Error("shepherd._enabled should be false"))
+                        }
                     }
                 });
             });
