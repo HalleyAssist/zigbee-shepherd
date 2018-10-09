@@ -421,6 +421,7 @@ describe('Top Level of Tests', function () {
                 startStub = sinon.stub(shepherd, 'start', function (callback) {
                     var deferred = Q.defer();
                     deferred.resolve();
+                    stopStub.restore();
                     done()
                     return deferred.promise.nodeify(callback);
                 });
