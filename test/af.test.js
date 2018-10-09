@@ -11,6 +11,8 @@ var af = require('../lib/components/af'),
     Coord  = require('../lib/model/coord'),
     Coordpoint  = require('../lib/model/coordpoint');
 
+sinon.test = require('sinon-test')(sinon, {useFakeTimers: false})
+
 var remoteDev = new Device({
     type: 1,
     ieeeAddr: '0x123456789ABCDEF',
