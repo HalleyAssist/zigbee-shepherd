@@ -113,7 +113,7 @@ controller.limitConcurrency = function(fn) {
 
 controller._indirect_send = function(addr, fn){
     var result = fn()
-    return {done: function(){}, result: result}
+    return {done: function(){}, result: result, handleTimeout: function(){}}
 };
 
 controller.getShepherd = function(){};
