@@ -128,7 +128,7 @@ function fireFakeCnf(status, epid, transid) {
 }
 
 function fireFakeZclRsp(dstNwkAddr, dstEpId, srcEpId, zclData) {
-    setTimeout(function () {
+    setImmediate(function () {
         controller.emit('ZCL:incomingMsg', {
             srcaddr: dstNwkAddr,
             srcendpoint: dstEpId,
@@ -1359,7 +1359,7 @@ describe('Module Methods Check', function() {
         });
     });
 
-/*
+
     describe('#.zclClusterAttrIdsReq', function() {
         it('zcl good send - only 1 rsp', sinon.test(function (done) {
             var fakeZclMsg;
@@ -1434,9 +1434,8 @@ describe('Module Methods Check', function() {
     describe('#.zclClusterAttrsReq', function() {
         it('zcl good send - only 1 rsp', function (done) {
             var fakeZclMsg;
-            af.zclClusterAttrsReq(rmEp1, 6, function (err, rsp) {
-                if (!err)
-                    done();
+            af.zclClusterAttrsReq(rmEp1, 6, false, function (err, rsp) {
+                done(err);
             });
 
             fakeZclMsg = {
@@ -1470,9 +1469,8 @@ describe('Module Methods Check', function() {
                 seqNum2,
                 seqNum3;
 
-            af.zclClusterAttrsReq(rmEp1, 6, function (err, rsp) {
-                if (!err)
-                    done();
+            af.zclClusterAttrsReq(rmEp1, 6, false, function (err, rsp) {
+                done(err);
             });
 
             seqNum1 = af._seq;
@@ -1527,7 +1525,7 @@ describe('Module Methods Check', function() {
                 rmEp1GetInClusterListStub = sinon.stub(rmEp1, 'getInClusterList').returns([ 1, 2, 3 ]),
                 rmEp1GetOutClusterListStub = sinon.stub(rmEp1, 'getOutClusterList').returns([ 1, 3, 4, 5 ]);
 
-            var requestStub = sinon.stub(af, 'zclClusterAttrsReq', function (dstEp, cId, interestedValue, callback) {
+            var requestStub = sinon.stub(af, 'zclClusterAttrsReq').callsFake(function (dstEp, cId, interestedValue, callback) {
                     var deferred = Q.defer();
                     setTimeout(function () {
                         deferred.resolve({
@@ -1565,36 +1563,36 @@ describe('Module Methods Check', function() {
             });
        });
 
-       // it('should reject for sequentially requests when receiver bad', function (done) {
-       //      var rmEp1GetClusterListStub = sinon.stub(rmEp1, 'getClusterList').returns([ 1, 2, 3, 4, 5 ]),
-       //          rmEp1GetInClusterListStub = sinon.stub(rmEp1, 'getInClusterList').returns([ 1, 2, 3 ]),
-       //          rmEp1GetOutClusterListStub = sinon.stub(rmEp1, 'getOutClusterList').returns([ 1, 3, 4, 5 ]);
+       it('should reject for sequentially requests when receiver bad', function (done) {
+            var rmEp1GetClusterListStub = sinon.stub(rmEp1, 'getClusterList').returns([ 1, 2, 3, 4, 5 ]),
+                 rmEp1GetInClusterListStub = sinon.stub(rmEp1, 'getInClusterList').returns([ 1, 2, 3 ]),
+                 rmEp1GetOutClusterListStub = sinon.stub(rmEp1, 'getOutClusterList').returns([ 1, 3, 4, 5 ]);
 
-       //      var requestStub = sinon.stub(af, 'zclClusterAttrsReq', function (dstEp, cId, callback) {
-       //              var deferred = Q.defer();
-       //              setTimeout(function () {
-       //                  if (cId !== 3) {
-       //                      deferred.resolve({
-       //                          x1: { value: 'hello' },
-       //                          x2: { value: 'world' }
-       //                      });
-       //                  } else {
-       //                      deferred.reject(new Error('TEST ERROR'));
-       //                  }
+             var requestStub = sinon.stub(af, 'zclClusterAttrsReq').callsFake(function (dstEp, cId, callback) {
+                     var deferred = Q.defer();
+                     setTimeout(function () {
+                         if (cId !== 3) {
+                             deferred.resolve({
+                                 x1: { value: 'hello' },
+                                 x2: { value: 'world' }
+                             });
+                         } else {
+                             deferred.reject(new Error('TEST ERROR'));
+                         }
 
-       //              }, 10);
-       //              return deferred.promise.nodeify(callback);
-       //      });
+                     }, 10);
+                     return deferred.promise.nodeify(callback);
+             });
 
-       //      af.zclClustersReq(rmEp1, function (err, data) {
-       //          rmEp1GetClusterListStub.restore();
-       //          rmEp1GetInClusterListStub.restore();
-       //          rmEp1GetOutClusterListStub.restore();
-       //          requestStub.restore();
+             af.zclClustersReq(rmEp1, function (err, data) {
+                 rmEp1GetClusterListStub.restore();
+                 rmEp1GetInClusterListStub.restore();
+                 rmEp1GetOutClusterListStub.restore();
+                 requestStub.restore();
 
-       //          if (err)
-       //              done();
-       //      });
-       // });
-    });*/
+                 if (err)
+                     done();
+             });
+        });
+    });
 });
