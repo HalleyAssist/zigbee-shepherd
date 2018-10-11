@@ -1520,12 +1520,12 @@ describe('Module Methods Check', function() {
     });
 
     describe('#.zclClustersReq', function() {
-       it('should resove for sequentially requests', function (done) {
+       it('should resove for sequentially requests', sinon.test(function (done) {
             var rmEp1GetClusterListStub = sinon.stub(rmEp1, 'getClusterList').returns([ 1, 2, 3, 4, 5 ]),
                 rmEp1GetInClusterListStub = sinon.stub(rmEp1, 'getInClusterList').returns([ 1, 2, 3 ]),
                 rmEp1GetOutClusterListStub = sinon.stub(rmEp1, 'getOutClusterList').returns([ 1, 3, 4, 5 ]);
 
-            var requestStub = sinon.stub(af, 'zclClusterAttrsReq').callsFake(function (dstEp, cId, interestedValue, callback) {
+            var requestStub = this.stub(af, 'zclClusterAttrsReq').callsFake(function (dstEp, cId, interestedValue, callback) {
                     var deferred = Q.defer();
                     setTimeout(function () {
                         deferred.resolve({
@@ -1561,14 +1561,14 @@ describe('Module Methods Check', function() {
                 if (good)
                     done();
             });
-       });
+       }));
 
-       it('should reject for sequentially requests when receiver bad', function (done) {
-            var rmEp1GetClusterListStub = sinon.stub(rmEp1, 'getClusterList').returns([ 1, 2, 3, 4, 5 ]),
-                 rmEp1GetInClusterListStub = sinon.stub(rmEp1, 'getInClusterList').returns([ 1, 2, 3 ]),
-                 rmEp1GetOutClusterListStub = sinon.stub(rmEp1, 'getOutClusterList').returns([ 1, 3, 4, 5 ]);
+       it('should reject for sequentially requests when receiver bad', sinon.test(function (done) {
+            var rmEp1GetClusterListStub = this.stub(rmEp1, 'getClusterList').returns([ 1, 2, 3, 4, 5 ]),
+                 rmEp1GetInClusterListStub = this.stub(rmEp1, 'getInClusterList').returns([ 1, 2, 3 ]),
+                 rmEp1GetOutClusterListStub = this.stub(rmEp1, 'getOutClusterList').returns([ 1, 3, 4, 5 ]);
 
-             var requestStub = sinon.stub(af, 'zclClusterAttrsReq').callsFake(function (dstEp, cId, callback) {
+             var requestStub = this.stub(af, 'zclClusterAttrsReq').callsFake(function (dstEp, cId, interestedValue, callback) {
                      var deferred = Q.defer();
                      setTimeout(function () {
                          if (cId !== 3) {
@@ -1585,14 +1585,11 @@ describe('Module Methods Check', function() {
              });
 
              af.zclClustersReq(rmEp1, function (err, data) {
-                 rmEp1GetClusterListStub.restore();
-                 rmEp1GetInClusterListStub.restore();
-                 rmEp1GetOutClusterListStub.restore();
-                 requestStub.restore();
-
-                 if (err)
+                if (err)
                      done();
+                else
+                    done("Expected an error")
              });
-        });
+        }));
     });
 });
