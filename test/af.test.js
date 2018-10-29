@@ -151,12 +151,12 @@ function fireFakeZclRawRsp(dstNwkAddr, dstEpId, srcEpId, zclBuffer, cid) {
     });
 }
 
+
 // af is an inner module, don't have to check all the arguments things
 describe('APIs Arguments Check for Throwing Error', function() {
     before(function () {
         af = require('../lib/components/af')(controller);
     });
-
     describe('#.send', function() {
         it('should be a function', function () {
             expect(af.send).to.be.a('function');
@@ -797,6 +797,32 @@ describe('Module Methods Check', function() {
             requestStub.restore();
         });
 
+        it('afOptions should be passed through', function (done) {
+            var _valObj
+            var requestStub = sinon.stub(controller, 'request').callsFake(function (subsys, cmdId, valObj, callback) {
+                    var deferred = Q.defer();
+                    _valObj = valObj
+                    process.nextTick(function () {
+                        deferred.resolve({ status: 0 });
+                    });
+                    return deferred.promise.nodeify(callback);
+            });
+
+            af.send(rmEp1, rmEp1, 3, new Buffer([ 1, 2 ]), { options: 0x1234 }, function (err, rsp) {
+                if (err) {
+                    return done(err)
+                }
+                if(_valObj && _valObj.options == 0x1234){
+                    done();
+                }else{
+                    done("Invalid valObj: "+JSON.stringify(_valObj))
+                }
+            });
+
+            fireFakeCnf(0, 1, transId);
+            requestStub.restore();
+        });
+
         it('if srsp status === 0, apsAck = 0, resolve successfully', function (done) {
             af.send(rmEp1, rmEp1, 3, new Buffer([ 1, 2 ]), { options: 0 }, function (err, rsp) {
                 if (rsp.status === 0)
@@ -1258,6 +1284,48 @@ describe('Module Methods Check', function() {
     });
 
     describe('#.zclFunctional - by loEp8', function() {
+
+
+        it('afOptions should be passed through', function (done) {
+            var test = { options: 0x1234 }
+            var _valObj
+            var requestStub = sinon.stub(controller, 'request').callsFake(function (subsys, cmdId, valObj, callback) {
+                    var deferred = Q.defer();
+                    _valObj = valObj
+                    process.nextTick(function () {
+                        deferred.resolve({ status: 0 });
+                    });
+                    return deferred.promise.nodeify(callback);
+            });
+    
+            af.zclFunctional(loEp8, rmEp1, 5, 'removeAll', {groupid: 1}, { afOptions: test, direction: 0 }, function (err, rsp) {
+                console.log("!! test")
+                if (err) {
+                    return done(err)
+                }
+                if(_valObj && _valObj.options == 0x1234){
+                    done();
+                }else{
+                    done("Invalid valObj: "+JSON.stringify(_valObj))
+                }
+            });
+
+            var fakeZclMsg = {
+                seqNum: af._seq,
+                frameCntl: {
+                    frameType: 1,
+                    manufSpec: 0,
+                    direction: 1,
+                    disDefaultRsp: 0
+                }
+            };
+    
+            fireFakeZclRsp(rmEp1.getNwkAddr(), rmEp1.getEpId(), loEp8.getEpId(), fakeZclMsg);
+            requestStub.restore();
+        });
+
+
+
         it('zcl good send', function (done) {
             var fakeZclMsg;
 
