@@ -1299,7 +1299,6 @@ describe('Module Methods Check', function() {
             });
     
             af.zclFunctional(loEp8, rmEp1, 5, 'removeAll', {groupid: 1}, { afOptions: test, direction: 0 }, function (err, rsp) {
-                console.log("!! test")
                 if (err) {
                     return done(err)
                 }
