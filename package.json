@@ -42,7 +42,7 @@
     "zcl-packet": "git+https://github.com/HalleyAssist/zcl-packet.git",
     "ziee": "git+https://github.com/HalleyAssist/ziee.git",
     "zive": "git+https://github.com/HalleyAssist/zive.git",
-    "zstack-constants": "^0.2.0"
+    "zstack-constants": "git+https://github.com/HalleyAssist/zstack-constants.git"
   },
   "devDependencies": {
     "chai": "^4.0.0",
