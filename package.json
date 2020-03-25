@@ -42,13 +42,14 @@
     "zcl-packet": "git+https://github.com/HalleyAssist/zcl-packet.git",
     "ziee": "git+https://github.com/HalleyAssist/ziee.git",
     "zive": "git+https://github.com/HalleyAssist/zive.git",
-    "zstack-constants": "git+https://github.com/HalleyAssist/zstack-constants.git"
+    "zstack-af": "git+https://github.com/HalleyAssist/zstack-af.git",
+    "zstack-common": "git+https://github.com/HalleyAssist/zstack-common.git"
   },
   "devDependencies": {
     "chai": "^4.0.0",
     "mocha": "^6.2.1",
     "sinon": "^6.3",
-    "sinon-test": "^2.3.0",
-    "sinon-chai": "^3.2.0"
+    "sinon-chai": "^3.2.0",
+    "sinon-test": "^2.3.0"
   }
 }
