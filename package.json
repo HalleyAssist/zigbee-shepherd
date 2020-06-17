@@ -41,6 +41,7 @@
     "zcl-id": "git+https://github.com/HalleyAssist/zcl-id.git",
     "zcl-packet": "git+https://github.com/HalleyAssist/zcl-packet.git",
     "ziee": "git+https://github.com/HalleyAssist/ziee.git",
+    "zive": "git+https://github.com/HalleyAssist/zive.git",
     "zstack-af": "git+https://github.com/HalleyAssist/zstack-af.git",
     "zstack-common": "git+https://github.com/HalleyAssist/zstack-common.git"
   },
