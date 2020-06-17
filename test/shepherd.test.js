@@ -1,4 +1,4 @@
-var Q = require('q'),
+var Q = require('q-lite'),
     fs = require('fs'),
     path = require('path'),
     Zive = require('zive'),

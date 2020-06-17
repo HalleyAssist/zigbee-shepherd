@@ -3,7 +3,7 @@ var EventEmitter = require('events'),
 
 var sinon = require('sinon'),
     expect = require('chai').expect,
-    Q = require('q');
+    Q = require('q-lite');
 
 var Af = require('../lib/components/af'),
     Device  = require('../lib/model/device'),

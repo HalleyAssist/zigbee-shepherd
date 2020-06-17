@@ -1,4 +1,4 @@
-var Q = require('q'),
+var Q = require('q-lite'),
     sinon = require('sinon'),
     expect = require('chai').expect,
     EventEmitter = require('events'),
