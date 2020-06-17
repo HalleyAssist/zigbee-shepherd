@@ -5,7 +5,7 @@ var sinon = require('sinon'),
     expect = require('chai').expect,
     Q = require('q-lite');
 
-var Af = require('../lib/components/af'),
+var {Af} = require('zstack-af'),
     Device  = require('../lib/model/device'),
     Endpoint  = require('../lib/model/endpoint'),
     Coord  = require('../lib/model/coord'),
