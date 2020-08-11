@@ -13,7 +13,9 @@ var {Af} = require('zstack-af'),
 
 sinon.test = require('sinon-test')(sinon, {useFakeTimers: false})
 
-var remoteDev = new Device({
+const ks = {}
+
+var remoteDev = new Device(ks, {
     type: 1,
     ieeeAddr: '0x123456789ABCDEF',
     nwkAddr: 100,
@@ -40,7 +42,7 @@ var rmEp2 = new Endpoint(remoteDev, {
     outClusterList: [ 0x0000, 0x0006 ]
 });
 
-var coordDev = new Coord({
+var coordDev = new Coord(ks, {
     type: 0,
     ieeeAddr: '0xABCDEF123456789',
     nwkAddr: 0,
@@ -120,6 +122,8 @@ controller._indirect_send = function(addr, fn){
 
 controller.getShepherd = function(){};
 
+controller.shouldSendIndrect = ()=>false
+
 function fireFakeCnf(status, epid, transid) {
     var afEventCnf = 'AF:dataConfirm:' + epid + ':' + transid;
     setTimeout(function () {
@@ -160,38 +164,6 @@ describe('APIs Arguments Check for Throwing Error', function() {
     describe('#.send', function() {
         it('should be a function', function () {
             expect(af.send).to.be.a('function');
-        });
-
-        it('Throw TypeError if srcEp is not an Endpoint or a Coorpoint', function () {
-            expect(function () { return af.send('x', rmEp1, 3, new Buffer([ 1, 2 ]), { options: 3000 }, function () {}); }).to.throw(TypeError);
-            expect(function () { return af.send(1, rmEp1, 3, new Buffer([ 1, 2 ]), { options: 3000 }, function () {}); }).to.throw(TypeError);
-            expect(function () { return af.send([], rmEp1, 3, new Buffer([ 1, 2 ]), { options: 3000 }, function () {}); }).to.throw(TypeError);
-            expect(function () { return af.send({}, rmEp1, 3, new Buffer([ 1, 2 ]), { options: 3000 }, function () {}); }).to.throw(TypeError);
-            expect(function () { return af.send(undefined, rmEp1, 3, new Buffer([ 1, 2 ]), { options: 3000 }, function () {}); }).to.throw(TypeError);
-            expect(function () { return af.send(null, rmEp1, 3, new Buffer([ 1, 2 ]), { options: 3000 }, function () {}); }).to.throw(TypeError);
-            expect(function () { return af.send(NaN, rmEp1, 3, new Buffer([ 1, 2 ]), { options: 3000 }, function () {}); }).to.throw(TypeError);
-            expect(function () { return af.send(new Date(), rmEp1, 3, new Buffer([ 1, 2 ]), { options: 3000 }, function () {}); }).to.throw(TypeError);
-            expect(function () { return af.send(function () {}, rmEp1, 3, new Buffer([ 1, 2 ]), { options: 3000 }, function () {}); }).to.throw(TypeError);
-
-            expect(function () { return af.send(rmEp1, rmEp1, 3, new Buffer([ 1, 2 ]), { options: 3000 }, function () {}); }).not.to.throw(TypeError);
-            expect(function () { return af.send(loEp1, rmEp1, 3, new Buffer([ 1, 2 ]), { options: 3000 }, function () {}); }).not.to.throw(TypeError);
-
-        });
-
-        it('Throw TypeError if dstEp is not an Endpoint or a Coorpoint', function () {
-            expect(function () { return af.send(rmEp1, 'x', 3, new Buffer([ 1, 2 ]), { options: 3000 }, function () {}); }).to.throw(TypeError);
-            expect(function () { return af.send(rmEp1, 1, 3, new Buffer([ 1, 2 ]), { options: 3000 }, function () {}); }).to.throw(TypeError);
-            expect(function () { return af.send(rmEp1, [], 3, new Buffer([ 1, 2 ]), { options: 3000 }, function () {}); }).to.throw(TypeError);
-            expect(function () { return af.send(rmEp1, {}, 3, new Buffer([ 1, 2 ]), { options: 3000 }, function () {}); }).to.throw(TypeError);
-            expect(function () { return af.send(rmEp1, undefined, 3, new Buffer([ 1, 2 ]), { options: 3000 }, function () {}); }).to.throw(TypeError);
-            expect(function () { return af.send(rmEp1, null, 3, new Buffer([ 1, 2 ]), { options: 3000 }, function () {}); }).to.throw(TypeError);
-            expect(function () { return af.send(rmEp1, NaN, 3, new Buffer([ 1, 2 ]), { options: 3000 }, function () {}); }).to.throw(TypeError);
-            expect(function () { return af.send(rmEp1, new Date(), 3, new Buffer([ 1, 2 ]), { options: 3000 }, function () {}); }).to.throw(TypeError);
-            expect(function () { return af.send(rmEp1, function () {}, 3, new Buffer([ 1, 2 ]), { options: 3000 }, function () {}); }).to.throw(TypeError);
-
-            expect(function () { return af.send(rmEp1, rmEp1, 3, new Buffer([ 1, 2 ]), { options: 3000 }, function () {}); }).not.to.throw(TypeError);
-            expect(function () { return af.send(rmEp1, rmEp2, 3, new Buffer([ 1, 2 ]), { options: 3000 }, function () {}); }).not.to.throw(TypeError);
-            expect(function () { return af.send(rmEp1, loEp8, 3, new Buffer([ 1, 2 ]), { options: 3000 }, function () {}); }).not.to.throw(TypeError);
         });
 
         it('Throw TypeError if cluster id is string, but not a valud id', function (done) {
@@ -1164,12 +1136,10 @@ describe('Module Methods Check', function() {
     });
 
     describe('#.zclFoundation - by delegator', function() {
-        it('zcl good send', function (done) {
+        it('zcl good send', async () => {
             var fakeZclMsg;
-            af.zclFoundation(rmEp1, rmEp1, 3, 'read', [ { attrId: 0 }, { attrId: 1 }, { attrId: 3 } ], function (err, zclMsg) {
-                if (!err && (zclMsg === fakeZclMsg))
-                    done();
-            });
+            const zclMsg = await af.zclFoundation(rmEp1, rmEp1, 3, 'read', [ { attrId: 0 }, { attrId: 1 }, { attrId: 3 } ])
+            expect(zclMsg).to.be.eql(fakeZclMsg)
 
             fakeZclMsg = {
                 seqNum: af._seq,
