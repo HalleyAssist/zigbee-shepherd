@@ -11,4 +11,4 @@ jobs:
       run: |
         yarn global add eslint
         echo "::add-path::$(yarn global bin)"
-    - run: eslint . --ext .js,.jsx,.ts,.tsx
+    - run: eslint lib index.js --ext .js,.jsx,.ts,.tsx
