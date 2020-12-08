@@ -9,6 +9,5 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install modules
       run: |
-        yarn global add eslint
-        echo "::add-path::$(yarn global bin)"
+        sudo npm install -g eslint
     - run: eslint lib index.js --ext .js,.jsx,.ts,.tsx
